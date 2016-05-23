@@ -26,6 +26,8 @@ class StoppedState(State):
     def start(self):
         print "Cooking . . ."
         self.microwave.set_state(CookingState(self.microwave))
+        # TODO: Thread for countdown
+
 
     def stop(self):
         """Clear timer if stopped and stop is pressed."""
@@ -73,7 +75,7 @@ class Timer(FrameComponent):
         FrameComponent.__init__(self, master)
 
     def create(self):
-        self.timer_label = Label(self, borderwidth=1)
+        self.timer_label = Label(self, borderwidth=10)
         self.refresh()
         self.timer_label.pack()
 
@@ -92,10 +94,10 @@ class NumberPad(FrameComponent):
                     Button(self).grid_forget()
                 elif num == 11:
                     NumPadButton(self, text="0",
-                        borderwidth=1 ).grid(row=r,column=c)
+                        borderwidth=2).grid(row=r,column=c)
                 else:
                     NumPadButton(self, text="{0}".format(num),
-                        borderwidth=1 ).grid(row=r,column=c)
+                        borderwidth=2).grid(row=r,column=c)
 
 
 class NumPadButton(Button):
