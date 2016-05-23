@@ -14,7 +14,10 @@ class State(object):
     def __init__(self, microwave):
         self.microwave = microwave
 
-    def start_stop(self):
+    def start(self):
+        pass
+
+    def stop(self):
         pass
 
 
@@ -24,16 +27,17 @@ class StoppedState(State):
         print "Cooking . . ."
         self.microwave.set_state(CookingState(self.microwave))
 
+    def stop(self):
+        """Clear timer if stopped and stop is pressed."""
+        self.microwave.timer.time.clear()
+        self.microwave.timer.refresh()
+
 
 class CookingState(State):
 
     def stop(self):
         print "Stopped"
         self.microwave.set_state(StoppedState(self.microwave))
-
-
-class OpenState(State):
-    pass
 
 
 class FrameComponent(Frame):
@@ -65,16 +69,16 @@ class Microwave(FrameComponent):
 class Timer(FrameComponent):
 
     def __init__(self, master):
-        self._timer = deque(maxlen=4)
+        self.time = deque(maxlen=4)
         FrameComponent.__init__(self, master)
 
     def create(self):
-        self.timer = Label(self, borderwidth=10)
+        self.timer_label = Label(self, borderwidth=10)
         self.refresh()
-        self.timer.pack()
+        self.timer_label.pack()
 
     def refresh(self):
-        self.timer["text"] = "".join(self._timer)
+        self.timer_label["text"] = "".join(self.time)
 
 
 class NumberPad(FrameComponent):
@@ -101,7 +105,7 @@ class NumPadButton(Button):
         self["command"] = self.press_num
 
     def press_num(self):
-        self.master.master.timer._timer.append(self["text"])
+        self.master.master.timer.time.append(self["text"])
         self.master.master.timer.refresh()
 
 
@@ -109,12 +113,17 @@ class Controls(FrameComponent):
 
     def create(self):
         self.start = Button(self, text="Start",
-                command=self.master.state.start)
-        self.start.pack()
-
+                command=self.start_oven)
+        self.start.pack(side=LEFT)
         self.stop = Button(self, text="Stop",
-                command=self.master.state.stop)
-        self.stop.pack()
+                command=self.stop_oven)
+        self.stop.pack(side=LEFT)
+
+    def start_oven(self):
+        self.master.state.start()
+
+    def stop_oven(self):
+        self.master.state.stop()
 
 
 def main():
