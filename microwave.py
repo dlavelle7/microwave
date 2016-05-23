@@ -20,14 +20,14 @@ class State(object):
 
 class StoppedState(State):
 
-    def start_stop(self):
+    def start(self):
         print "Cooking . . ."
         self.microwave.set_state(CookingState(self.microwave))
 
 
 class CookingState(State):
 
-    def start_stop(self):
+    def stop(self):
         print "Stopped"
         self.microwave.set_state(StoppedState(self.microwave))
 
@@ -108,13 +108,13 @@ class NumPadButton(Button):
 class Controls(FrameComponent):
 
     def create(self):
-        # Controls
-        self.start_stop = Button(self, text="Start / Stop",
-                command=self.start_stop_oven)
-        self.start_stop.pack()
+        self.start = Button(self, text="Start",
+                command=self.master.state.start)
+        self.start.pack()
 
-    def start_stop_oven(self):
-        self.master.state.start_stop()
+        self.stop = Button(self, text="Stop",
+                command=self.master.state.stop)
+        self.stop.pack()
 
 
 def main():
