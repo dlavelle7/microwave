@@ -73,7 +73,7 @@ class Timer(FrameComponent):
         FrameComponent.__init__(self, master)
 
     def create(self):
-        self.timer_label = Label(self, borderwidth=10)
+        self.timer_label = Label(self, borderwidth=1)
         self.refresh()
         self.timer_label.pack()
 
