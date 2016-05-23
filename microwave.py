@@ -5,6 +5,37 @@ from Tkinter import *
 from collections import deque
 
 
+# TODO: Refine Composite and State patterns
+# TODO: OpenState
+
+
+class State(object):
+
+    def __init__(self, microwave):
+        self.microwave = microwave
+
+    def start_stop(self):
+        pass
+
+
+class StoppedState(State):
+
+    def start_stop(self):
+        print "Cooking . . ."
+        self.microwave.set_state(CookingState(self.microwave))
+
+
+class CookingState(State):
+
+    def start_stop(self):
+        print "Stopped"
+        self.microwave.set_state(StoppedState(self.microwave))
+
+
+class OpenState(State):
+    pass
+
+
 class FrameComponent(Frame):
 
     def __init__(self, master=None):
@@ -20,16 +51,21 @@ class Microwave(FrameComponent):
 
     def __init__(self, master):
         FrameComponent.__init__(self, master)
+        self.state = StoppedState(self)
+
+    def create(self):
         self.timer = Timer(self)
         self.number_pad = NumberPad(self)
         self.controls = Controls(self)
+
+    def set_state(self, state):
+        self.state = state
 
 
 class Timer(FrameComponent):
 
     def __init__(self, master):
         self._timer = deque(maxlen=4)
-        self._timer.append("0")
         FrameComponent.__init__(self, master)
 
     def create(self):
@@ -73,24 +109,12 @@ class Controls(FrameComponent):
 
     def create(self):
         # Controls
-        self.start = Button(self, text="Start", command=self.start_oven)
-        self.start.pack(side=LEFT)
+        self.start_stop = Button(self, text="Start / Stop",
+                command=self.start_stop_oven)
+        self.start_stop.pack()
 
-        self.stop = Button(self, text="Stop", command=self.stop_oven)
-        self.stop.pack(side=LEFT)
-
-        self._open = Button(self, text="Open", command=self.open_oven)
-        self._open.pack(side=LEFT)
-
-    def start_oven(self):
-        print "Start . . ."
-
-    def stop_oven(self):
-        print "Stop . . ."
-
-    def open_oven(self):
-        print "Open . . ."
-
+    def start_stop_oven(self):
+        self.master.state.start_stop()
 
 
 def main():
