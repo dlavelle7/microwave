@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 import sys
+import time
 import traceback
+import threading
 from Tkinter import *
 from collections import deque
 
@@ -26,7 +28,8 @@ class StoppedState(State):
     def start(self):
         print "Cooking . . ."
         self.microwave.set_state(CookingState(self.microwave))
-        # TODO: Thread for countdown
+        thread = threading.Thread(target=self.microwave.timer.countdown)
+        thread.start()
 
 
     def stop(self):
@@ -81,6 +84,16 @@ class Timer(FrameComponent):
 
     def refresh(self):
         self.timer_label["text"] = "".join(self.time)
+
+    def countdown(self):
+        if self.timer_label["text"]:
+            secs = int(self.timer_label["text"])
+            while secs > 0:
+                time.sleep(1)
+                secs -= 1
+                self.timer_label["text"] = str(secs)
+            print 'Ping!'
+            self.time.clear()
 
 
 class NumberPad(FrameComponent):
