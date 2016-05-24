@@ -10,8 +10,11 @@ from collections import deque
 # TODO: Refine Composite and State patterns
 # TODO: OpenState
 
+stop_event = threading.Event()
+
 
 class State(object):
+    """Base class for State pattern."""
 
     def __init__(self, microwave):
         self.microwave = microwave
@@ -41,11 +44,13 @@ class StoppedState(State):
 class CookingState(State):
 
     def stop(self):
-        print "Stopped"
+        stop_event.set()
         self.microwave.set_state(StoppedState(self.microwave))
+        print "Stopped"
 
 
 class FrameComponent(Frame):
+    """Base class for Composite pattern."""
 
     def __init__(self, master=None):
         Frame.__init__(self, master)
@@ -86,14 +91,18 @@ class Timer(FrameComponent):
         self.timer_label["text"] = "".join(self.time)
 
     def countdown(self):
-        if self.timer_label["text"]:
+        if self.timer_label["text"] and int(self.timer_label["text"]) != 0:
             secs = int(self.timer_label["text"])
-            while secs > 0:
+            while secs > 0 and not stop_event.is_set():
                 time.sleep(1)
                 secs -= 1
                 self.timer_label["text"] = str(secs)
-            print 'Ping!'
+            if secs == 0:
+                print 'Ping!'
             self.time.clear()
+            self.time.append(str(secs))
+            stop_event.clear()  # reset stop event
+        self.master.set_state(StoppedState(self.master))
 
 
 class NumberPad(FrameComponent):
@@ -104,12 +113,12 @@ class NumberPad(FrameComponent):
             for c in range(3):
                 num += 1
                 if num in (10, 12):
-                    Button(self).grid_forget()
+                    Button(self).grid_forget()  # numberpad doesnt have 10 / 12
                 elif num == 11:
                     NumPadButton(self, text="0",
                         borderwidth=2).grid(row=r,column=c)
                 else:
-                    NumPadButton(self, text="{0}".format(num),
+                    NumPadButton(self, text=str(num),
                         borderwidth=2).grid(row=r,column=c)
 
 
@@ -127,11 +136,9 @@ class NumPadButton(Button):
 class Controls(FrameComponent):
 
     def create(self):
-        self.start = Button(self, text="Start",
-                command=self.start_oven)
+        self.start = Button(self, text="Start", command=self.start_oven)
         self.start.pack(side=LEFT)
-        self.stop = Button(self, text="Stop",
-                command=self.stop_oven)
+        self.stop = Button(self, text="Stop", command=self.stop_oven)
         self.stop.pack(side=LEFT)
 
     def start_oven(self):
