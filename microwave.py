@@ -7,9 +7,6 @@ from Tkinter import *
 from collections import deque
 
 
-# TODO: Refine Composite and State patterns
-# TODO: OpenState
-
 stop_event = threading.Event()
 
 
@@ -90,18 +87,24 @@ class Timer(FrameComponent):
         self.timer_label.pack()
 
     def refresh(self):
-        self.timer_label["text"] = "".join(self.time)
+        time = "".join(self.time)
+        while time.startswith('0'):
+            time = time[1:]
+        self.timer_label["text"] = time
 
     def countdown(self):
         secs = int(self.timer_label["text"])
         while secs > 0 and not stop_event.is_set():
             time.sleep(1)
             secs -= 1
-            self.timer_label["text"] = str(secs)
+            self.time.clear()
+            for char in str(secs):
+                self.time.append(char)
+            self.refresh()
+
         if secs == 0:
             print 'Ping!'
-        self.time.clear()
-        self.time.append(str(secs))
+
         stop_event.clear()  # reset stop event
         self.master.set_state(StoppedState(self.master))
 
@@ -130,9 +133,10 @@ class NumPadButton(Button):
         self["command"] = self.press_num
 
     def press_num(self):
-        # FIXME: Not allowed when cooking
-        self.master.master.timer.time.append(self["text"])
-        self.master.master.timer.refresh()
+        microwave = self.master.master
+        if isinstance(microwave.state, StoppedState):
+            microwave.timer.time.append(self["text"])
+            microwave.timer.refresh()
 
 
 class Controls(FrameComponent):

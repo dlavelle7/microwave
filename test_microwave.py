@@ -1,0 +1,14 @@
+import unittest
+import mock
+
+
+class TestMicrowave(unittest.TestCase):
+
+    def setUp(self):
+        pass
+
+    def tearDown(self):
+        pass
+
+    def test(self):
+        self.assertTrue(True)
