@@ -31,6 +31,7 @@ class State(object):
 class StoppedState(State):
 
     def start(self):
+        # FIXME - Bug: Start -> Stop then Start quickly
         if self.microwave.timer.timer_label["text"] and \
                 int(self.microwave.timer.timer_label["text"]) != 0:
             print "Cooking . . ."
@@ -83,7 +84,7 @@ class Microwave(FrameComponent):
 class Timer(FrameComponent):
 
     def __init__(self, master):
-        self.time = deque(maxlen=4)
+        self.time = deque()
         FrameComponent.__init__(self, master)
 
     def create(self):
@@ -100,12 +101,12 @@ class Timer(FrameComponent):
     def countdown(self):
         secs = int(self.timer_label["text"])
         while secs > 0 and not stop_event.is_set():
-            time.sleep(1)
             secs -= 1
             self.time.clear()
             for char in str(secs):
                 self.time.append(char)
             self.refresh()
+            time.sleep(1)
 
         if secs == 0:
             print 'Ping!'
