@@ -29,10 +29,12 @@ class State(object):
 class StoppedState(State):
 
     def start(self):
-        print "Cooking . . ."
-        self.microwave.set_state(CookingState(self.microwave))
-        thread = threading.Thread(target=self.microwave.timer.countdown)
-        thread.start()
+        if self.microwave.timer.timer_label["text"] and \
+                int(self.microwave.timer.timer_label["text"]) != 0:
+            print "Cooking . . ."
+            self.microwave.set_state(CookingState(self.microwave))
+            thread = threading.Thread(target=self.microwave.timer.countdown)
+            thread.start()
 
 
     def stop(self):
@@ -91,17 +93,16 @@ class Timer(FrameComponent):
         self.timer_label["text"] = "".join(self.time)
 
     def countdown(self):
-        if self.timer_label["text"] and int(self.timer_label["text"]) != 0:
-            secs = int(self.timer_label["text"])
-            while secs > 0 and not stop_event.is_set():
-                time.sleep(1)
-                secs -= 1
-                self.timer_label["text"] = str(secs)
-            if secs == 0:
-                print 'Ping!'
-            self.time.clear()
-            self.time.append(str(secs))
-            stop_event.clear()  # reset stop event
+        secs = int(self.timer_label["text"])
+        while secs > 0 and not stop_event.is_set():
+            time.sleep(1)
+            secs -= 1
+            self.timer_label["text"] = str(secs)
+        if secs == 0:
+            print 'Ping!'
+        self.time.clear()
+        self.time.append(str(secs))
+        stop_event.clear()  # reset stop event
         self.master.set_state(StoppedState(self.master))
 
 
@@ -129,6 +130,7 @@ class NumPadButton(Button):
         self["command"] = self.press_num
 
     def press_num(self):
+        # FIXME: Not allowed when cooking
         self.master.master.timer.time.append(self["text"])
         self.master.master.timer.refresh()
 
@@ -150,6 +152,7 @@ class Controls(FrameComponent):
 
 def main():
     top = Tk()
+    top.title('Microwave')
     Microwave(top)
     top.mainloop()
 
