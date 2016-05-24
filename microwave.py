@@ -1,9 +1,14 @@
 #!/usr/bin/env python
+"""Simple example of a microwave ovens control panel.
+
+Implemented using the Tkinter library for the GUI and combining the State and
+Composite design patterns.
+"""
 import sys
 import time
 import traceback
 import threading
-from Tkinter import *
+from Tkinter import Tk, Frame, Button, Label, LEFT
 from collections import deque
 
 
