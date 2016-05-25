@@ -35,7 +35,6 @@ class StoppedState(State):
             thread = threading.Thread(target=self.microwave.timer.countdown)
             thread.start()
 
-
     def stop(self):
         """Clear timer if stopped and stop is pressed."""
         self.microwave.timer.time.clear()

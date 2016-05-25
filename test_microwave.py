@@ -1,6 +1,6 @@
 import unittest
-import mock
 import microwave
+from mock import Mock, patch
 
 
 class TestMicrowave(unittest.TestCase):
@@ -11,7 +11,8 @@ class TestMicrowave(unittest.TestCase):
     def tearDown(self):
         pass
 
-    def test(self):
+    @patch('microwave.FrameComponent', Mock())
+    def test_(self):
         # TODO: Write UTs
+        micro = microwave.Microwave(Mock())
         #import ipdb; ipdb.set_trace()
-        self.assertTrue(True)
