@@ -12,9 +12,6 @@ from Tkinter import Tk, Frame, Button, Label, LEFT
 from collections import deque
 
 
-stop_event = threading.Event()
-
-
 class State(object):
     """Base class for State pattern."""
 
@@ -31,7 +28,6 @@ class State(object):
 class StoppedState(State):
 
     def start(self):
-        # FIXME - Bug: Start -> Stop then Start quickly
         if self.microwave.timer.timer_label["text"] and \
                 int(self.microwave.timer.timer_label["text"]) != 0:
             print "Cooking . . ."
@@ -49,7 +45,6 @@ class StoppedState(State):
 class CookingState(State):
 
     def stop(self):
-        stop_event.set()
         self.microwave.set_state(StoppedState(self.microwave))
         print "Stopped"
 
@@ -100,7 +95,7 @@ class Timer(FrameComponent):
 
     def countdown(self):
         secs = int(self.timer_label["text"])
-        while secs > 0 and not stop_event.is_set():
+        while secs > 0 and not isinstance(self.master.state, StoppedState):
             secs -= 1
             self.time.clear()
             for char in str(secs):
@@ -111,7 +106,6 @@ class Timer(FrameComponent):
         if secs == 0:
             print 'Ping!'
 
-        stop_event.clear()  # reset stop event
         self.master.set_state(StoppedState(self.master))
 
 
