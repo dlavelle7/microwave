@@ -135,9 +135,11 @@ class NumPadButton(Button):
 class Controls(FrameComponent):
 
     def create(self):
-        start = Button(self, text="Start", command=self.start_oven)
+        start = Button(self, text="Start", borderwidth=2,
+                command=self.start_oven)
         start.pack(side=LEFT)
-        stop = Button(self, text="Stop", command=self.stop_oven)
+        stop = Button(self, text="Stop", borderwidth=2,
+                command=self.stop_oven)
         stop.pack(side=LEFT)
 
     def start_oven(self):
