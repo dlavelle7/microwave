@@ -2,44 +2,41 @@ import unittest
 import microwave
 from mock import Mock, patch
 
-class MyMock:
-    """Old style class to mock base class Frame."""
+class MockWidget:
+    """Old style class to mock base class Tkinter widgets."""
+
+    def __init__(self, *args, **kwargs):
+        self.master = args[0]
 
     def __setitem__(self, name, value):
         pass
 
-    def grid(self, row, column):
+    def grid(self, *args, **kwargs):
         pass
 
-    def pack(self):
+    def pack(self, *args, **kwargs):
         pass
 
     def next(self):
         return Mock()
 
 
-class MockComponent(dict):
-    """Subclass dict for item assignment and have a pack() function."""
-
-    def pack(self):
-        pass
-
-
 class TestMicrowave(unittest.TestCase):
 
     def setUp(self):
-        pass
+        microwave.threading = Mock()
+        microwave.time = Mock()
 
     def tearDown(self):
         pass
 
-    @patch('microwave.Frame', Mock())
-    @patch('microwave.Label', Mock(return_value=MockComponent()))
-    @patch('microwave.Button', Mock())
+    @patch('microwave.Frame', MockWidget)
+    @patch('microwave.Label', MockWidget)
+    @patch('microwave.Button', MockWidget)
     def test_states(self):
         # Mock Tkinter.Frame & Tkinter.Button base classes
-        microwave.FrameComponent.__bases__ = (MyMock,)
-        microwave.NumPadButton.__bases__ = (MyMock,)
+        microwave.FrameComponent.__bases__ = (MockWidget,)
+        microwave.NumPadButton.__bases__ = (MockWidget,)
         # Create microwave instance
         micro = microwave.Microwave(Mock())
         self.assertTrue(isinstance(micro.state, microwave.StoppedState))
@@ -51,6 +48,6 @@ class TestMicrowave(unittest.TestCase):
         micro.state.start()
         self.assertTrue(isinstance(micro.state, microwave.StoppedState))
         # Stopped -> Cooking with secs = Cooking
-        #micro.timer.secs = 2
-        #micro.state.start()
-        #self.assertTrue(isinstance(micro.state, microwave.CookingState))
+        micro.timer.secs = 2
+        micro.state.start()
+        self.assertTrue(isinstance(micro.state, microwave.CookingState))
