@@ -74,6 +74,7 @@ class Microwave(FrameComponent):
     def set_state(self, state):
         self.state = state
 
+# TODO: Convert seconds to formatted minutes
 
 class Timer(FrameComponent):
 
@@ -109,7 +110,7 @@ class NumberPad(FrameComponent):
             for c in range(3):
                 num += 1
                 if num in (10, 12):
-                    Button(self).grid_forget()  # numberpad doesnt have 10 / 12
+                    pass  # numberpad doesnt have 10 / 12
                 elif num == 11:
                     NumPadButton(self, text="0",
                         borderwidth=2).grid(row=r,column=c)
@@ -134,10 +135,10 @@ class NumPadButton(Button):
 class Controls(FrameComponent):
 
     def create(self):
-        self.start = Button(self, text="Start", command=self.start_oven)
-        self.start.pack(side=LEFT)
-        self.stop = Button(self, text="Stop", command=self.stop_oven)
-        self.stop.pack(side=LEFT)
+        start = Button(self, text="Start", command=self.start_oven)
+        start.pack(side=LEFT)
+        stop = Button(self, text="Stop", command=self.stop_oven)
+        stop.pack(side=LEFT)
 
     def start_oven(self):
         self.master.state.start()
