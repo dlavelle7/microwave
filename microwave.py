@@ -9,8 +9,8 @@ import time
 import traceback
 import threading
 from Tkinter import Tk, Frame, Button, Label, LEFT
-from collections import deque
 
+# TODO: Open door state
 
 class State(object):
     """Base class for State pattern."""
@@ -28,8 +28,7 @@ class State(object):
 class StoppedState(State):
 
     def start(self):
-        if self.microwave.timer.timer_label["text"] and \
-                int(self.microwave.timer.timer_label["text"]) != 0:
+        if self.microwave.timer.secs:
             print "Cooking . . ."
             self.microwave.set_state(CookingState(self.microwave))
             thread = threading.Thread(target=self.microwave.timer.countdown)
@@ -37,7 +36,7 @@ class StoppedState(State):
 
     def stop(self):
         """Clear timer if stopped and stop is pressed."""
-        self.microwave.timer.time.clear()
+        self.microwave.timer.secs = 0
         self.microwave.timer.refresh()
 
 
@@ -47,6 +46,7 @@ class CookingState(State):
         self.microwave.set_state(StoppedState(self.microwave))
         print "Stopped"
 
+# TODO: Door Graphic (black -> stopped, yellow -> cooking
 
 class FrameComponent(Frame):
     """Base class for Composite pattern."""
@@ -78,7 +78,7 @@ class Microwave(FrameComponent):
 class Timer(FrameComponent):
 
     def __init__(self, master):
-        self.time = deque()
+        self.secs = 0
         FrameComponent.__init__(self, master)
 
     def create(self):
@@ -87,22 +87,15 @@ class Timer(FrameComponent):
         self.timer_label.pack()
 
     def refresh(self):
-        time = "".join(self.time)
-        while time.startswith('0'):
-            time = time[1:]
-        self.timer_label["text"] = time
+        self.timer_label["text"] = str(self.secs)
 
     def countdown(self):
-        secs = int(self.timer_label["text"])
-        while secs > 0 and not isinstance(self.master.state, StoppedState):
-            secs -= 1
-            self.time.clear()
-            for char in str(secs):
-                self.time.append(char)
+        while self.secs > 0 and not isinstance(self.master.state, StoppedState):
+            self.secs -= 1
             self.refresh()
             time.sleep(1)
 
-        if secs == 0:
+        if self.secs == 0:
             print 'Ping!'
 
         self.master.set_state(StoppedState(self.master))
@@ -134,7 +127,7 @@ class NumPadButton(Button):
     def press_num(self):
         microwave = self.master.master
         if isinstance(microwave.state, StoppedState):
-            microwave.timer.time.append(self["text"])
+            microwave.timer.secs = int(str(microwave.timer.secs) + self["text"])
             microwave.timer.refresh()
 
 
