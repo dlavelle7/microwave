@@ -36,7 +36,7 @@ class StoppedState(State):
 
     def stop(self):
         """Clear timer if stopped and stop is pressed."""
-        self.microwave.timer.total = ''
+        self.microwave.timer.total = ['0', '0', '0', '0']
         self.microwave.timer.refresh()
 
 
@@ -74,12 +74,11 @@ class Microwave(FrameComponent):
     def set_state(self, state):
         self.state = state
 
-# TODO: Convert seconds to formatted minutes
 
 class Timer(FrameComponent):
 
     def __init__(self, master):
-        self.total = ''
+        self.total = ['0','0','0','0']
         FrameComponent.__init__(self, master)
 
     def create(self):
@@ -88,20 +87,22 @@ class Timer(FrameComponent):
         self.timer_label.pack()
 
     def refresh(self):
-        self.timer_label["text"] = self.total
+        mins = int("".join(self.total[:2]))
+        secs = int("".join(self.total[2:]))
+        self.timer_label["text"] = '{:02d}:{:02d}'.format(mins, secs)
 
     def countdown(self):
-        mins = int(self.total[:2])
-        secs = int(self.total[2:])
+        mins = int("".join(self.total[:2]))
+        secs = int("".join(self.total[2:]))
         total_secs = mins * 60 + secs
         while total_secs > 0 and not isinstance(self.master.state, StoppedState):
             total_secs -= 1
             new_mins, new_secs = divmod(total_secs, 60)
-            self.total = '{:02d}:{:02d}'.format(new_mins, new_secs)
+            self.total = list('{:02d}{:02d}'.format(new_mins, new_secs))
             self.refresh()
             time.sleep(1)
 
-        if self.total == '0':
+        if all(num == "0" for num in self.total):
             print 'Ping!'
 
         self.master.set_state(StoppedState(self.master))
@@ -133,8 +134,10 @@ class NumPadButton(Button):
     def press_num(self):
         microwave = self.master.master
         if isinstance(microwave.state, StoppedState):
-            microwave.timer.total = str(microwave.timer.total) + self["text"]
-            microwave.timer.refresh()
+            if microwave.timer.total[0] == '0':
+                del microwave.timer.total[0]
+                microwave.timer.total.append(self["text"])
+                microwave.timer.refresh()
 
 
 class Controls(FrameComponent):
