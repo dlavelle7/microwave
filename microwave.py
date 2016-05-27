@@ -79,7 +79,6 @@ class Microwave(FrameComponent):
 class Timer(FrameComponent):
 
     def __init__(self, master):
-        # TODO: Why not just have the formatted value here?
         self.total = '0000'
         FrameComponent.__init__(self, master)
 
@@ -116,13 +115,13 @@ class NumberPad(FrameComponent):
             for c in range(3):
                 num += 1
                 if num in (10, 12):
-                    pass  # numberpad doesnt have 10 / 12
+                    continue  # numberpad doesnt have 10 / 12
                 elif num == 11:
-                    NumPadButton(self, text="0",
-                        borderwidth=2).grid(row=r,column=c)
+                    text = "0"
                 else:
-                    NumPadButton(self, text=str(num),
-                        borderwidth=2).grid(row=r,column=c)
+                    text=str(num)
+                NumPadButton(self, text=text,
+                    borderwidth=2).grid(row=r,column=c)
 
 
 class NumPadButton(Button):
@@ -132,10 +131,10 @@ class NumPadButton(Button):
         self["command"] = self.press_num
 
     def press_num(self):
-        # FIXME: Formatting can have 99secs
         microwave = self.master.master
         if isinstance(microwave.state, StoppedState):
             if microwave.timer.total.startswith("0"):
+                # FIXME: '09:99' add num?
                 microwave.timer.total = microwave.timer.total[1:] + self["text"]
                 microwave.timer.refresh()
 
