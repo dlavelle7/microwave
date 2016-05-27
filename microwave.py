@@ -94,16 +94,16 @@ class Timer(FrameComponent):
         mins = int(self.total[:2])
         secs = int(self.total[2:])
         total_secs = mins * 60 + secs
-        while total_secs > 0 and not isinstance(self.master.state, StoppedState):
+        while total_secs > 0:
+            if isinstance(self.master.state, StoppedState):
+                return
             total_secs -= 1
             new_mins, new_secs = divmod(total_secs, 60)
             self.total = '{:02d}{:02d}'.format(new_mins, new_secs)
             self.refresh()
             time.sleep(1)
 
-        if self.total == "0000":
-            print 'Ping!'
-
+        print 'Ping!'
         self.master.set_state(StoppedState(self.master))
 
 
