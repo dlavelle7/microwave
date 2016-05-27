@@ -10,7 +10,7 @@ import traceback
 import threading
 from Tkinter import Tk, Frame, Button, Label, LEFT
 
-# TODO: Open door state
+# TODO: Open door state?
 
 class State(object):
     """Base class for State pattern."""
@@ -28,11 +28,12 @@ class State(object):
 class StoppedState(State):
 
     def start(self):
-        if self.microwave.timer.total:
+        # TODO: Isn't this another state (StoppedWithTime)
+        if self.microwave.timer.total != "0000":
             print "Cooking . . ."
             self.microwave.set_state(CookingState(self.microwave))
             thread = threading.Thread(target=self.microwave.timer.countdown)
-            thread.start()  # TODO: call this threas join() from main thread
+            thread.start()  # FIXME: call this threas join() from main thread?
 
     def stop(self):
         """Clear timer if stopped and stop is pressed."""
@@ -51,8 +52,8 @@ class CookingState(State):
 class FrameComponent(Frame):
     """Base class for Composite pattern."""
 
-    def __init__(self, master=None):
-        Frame.__init__(self, master)
+    def __init__(self, *args, **kwargs):
+        Frame.__init__(self, *args, **kwargs)
         self.create()
         self.pack()
 
@@ -78,6 +79,7 @@ class Microwave(FrameComponent):
 class Timer(FrameComponent):
 
     def __init__(self, master):
+        # TODO: Why not just have the formatted value here?
         self.total = '0000'
         FrameComponent.__init__(self, master)
 
@@ -87,9 +89,7 @@ class Timer(FrameComponent):
         self.timer_label.pack()
 
     def refresh(self):
-        mins = int(self.total[:2])
-        secs = int(self.total[2:])
-        self.timer_label["text"] = '{:02d}:{:02d}'.format(mins, secs)
+        self.timer_label["text"] = self.total[:2] + ":" + self.total[2:]
 
     def countdown(self):
         mins = int(self.total[:2])
@@ -132,6 +132,7 @@ class NumPadButton(Button):
         self["command"] = self.press_num
 
     def press_num(self):
+        # FIXME: Formatting can have 99secs
         microwave = self.master.master
         if isinstance(microwave.state, StoppedState):
             if microwave.timer.total.startswith("0"):

@@ -40,17 +40,17 @@ class TestMicrowave(unittest.TestCase):
         # Create microwave instance
         micro = microwave.Microwave(Mock())
         self.assertTrue(isinstance(micro.state, microwave.StoppedState))
-        self.assertEquals(0, micro.timer.secs)
-        # Stopped -> stop() = Stopped & resets secs
-        micro.timer.secs = 2
+        self.assertEquals('0000', micro.timer.total)
+        # Stopped -> stop() = Stopped & resets total
+        micro.timer.total = '1234'
         micro.state.stop()
         self.assertTrue(isinstance(micro.state, microwave.StoppedState))
-        self.assertEquals(0, micro.timer.secs)
-        # Stopped -> start() & no secs = Stopped
+        self.assertEquals('0000', micro.timer.total)
+        # Stopped -> start() & no total = Stopped
         micro.state.start()
         self.assertTrue(isinstance(micro.state, microwave.StoppedState))
-        # Stopped -> start() with secs = Cooking
-        micro.timer.secs = 2
+        # Stopped -> start() with total = Cooking
+        micro.timer.total = '1234'
         micro.state.start()
         self.assertTrue(isinstance(micro.state, microwave.CookingState))
         # TODO: Cooking -> start() = Cooking
