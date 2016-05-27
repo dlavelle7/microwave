@@ -28,15 +28,15 @@ class State(object):
 class StoppedState(State):
 
     def start(self):
-        if self.microwave.timer.secs:
+        if self.microwave.timer.total:
             print "Cooking . . ."
             self.microwave.set_state(CookingState(self.microwave))
             thread = threading.Thread(target=self.microwave.timer.countdown)
-            thread.start()
+            thread.start()  # TODO: call this threas join() from main thread
 
     def stop(self):
         """Clear timer if stopped and stop is pressed."""
-        self.microwave.timer.secs = 0
+        self.microwave.timer.total = ''
         self.microwave.timer.refresh()
 
 
@@ -79,7 +79,7 @@ class Microwave(FrameComponent):
 class Timer(FrameComponent):
 
     def __init__(self, master):
-        self.secs = 0
+        self.total = ''
         FrameComponent.__init__(self, master)
 
     def create(self):
@@ -88,15 +88,20 @@ class Timer(FrameComponent):
         self.timer_label.pack()
 
     def refresh(self):
-        self.timer_label["text"] = str(self.secs)
+        self.timer_label["text"] = self.total
 
     def countdown(self):
-        while self.secs > 0 and not isinstance(self.master.state, StoppedState):
-            self.secs -= 1
+        mins = int(self.total[:2])
+        secs = int(self.total[2:])
+        total_secs = mins * 60 + secs
+        while total_secs > 0 and not isinstance(self.master.state, StoppedState):
+            total_secs -= 1
+            new_mins, new_secs = divmod(total_secs, 60)
+            self.total = '{:02d}:{:02d}'.format(new_mins, new_secs)
             self.refresh()
             time.sleep(1)
 
-        if self.secs == 0:
+        if self.total == '0':
             print 'Ping!'
 
         self.master.set_state(StoppedState(self.master))
@@ -128,7 +133,7 @@ class NumPadButton(Button):
     def press_num(self):
         microwave = self.master.master
         if isinstance(microwave.state, StoppedState):
-            microwave.timer.secs = int(str(microwave.timer.secs) + self["text"])
+            microwave.timer.total = str(microwave.timer.total) + self["text"]
             microwave.timer.refresh()
 
 
@@ -138,7 +143,7 @@ class Controls(FrameComponent):
         start = Button(self, text="Start", borderwidth=2,
                 command=self.start_oven)
         start.pack(side=LEFT)
-        stop = Button(self, text="Stop", borderwidth=2,
+        stop = Button(self, text="Stop / Clear", borderwidth=2,
                 command=self.stop_oven)
         stop.pack(side=LEFT)
 
