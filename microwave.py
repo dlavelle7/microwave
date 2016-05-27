@@ -36,7 +36,7 @@ class StoppedState(State):
 
     def stop(self):
         """Clear timer if stopped and stop is pressed."""
-        self.microwave.timer.total = ['0', '0', '0', '0']
+        self.microwave.timer.total = "0000"
         self.microwave.timer.refresh()
 
 
@@ -78,7 +78,7 @@ class Microwave(FrameComponent):
 class Timer(FrameComponent):
 
     def __init__(self, master):
-        self.total = ['0','0','0','0']
+        self.total = '0000'
         FrameComponent.__init__(self, master)
 
     def create(self):
@@ -87,22 +87,22 @@ class Timer(FrameComponent):
         self.timer_label.pack()
 
     def refresh(self):
-        mins = int("".join(self.total[:2]))
-        secs = int("".join(self.total[2:]))
+        mins = int(self.total[:2])
+        secs = int(self.total[2:])
         self.timer_label["text"] = '{:02d}:{:02d}'.format(mins, secs)
 
     def countdown(self):
-        mins = int("".join(self.total[:2]))
-        secs = int("".join(self.total[2:]))
+        mins = int(self.total[:2])
+        secs = int(self.total[2:])
         total_secs = mins * 60 + secs
         while total_secs > 0 and not isinstance(self.master.state, StoppedState):
             total_secs -= 1
             new_mins, new_secs = divmod(total_secs, 60)
-            self.total = list('{:02d}{:02d}'.format(new_mins, new_secs))
+            self.total = '{:02d}{:02d}'.format(new_mins, new_secs)
             self.refresh()
             time.sleep(1)
 
-        if all(num == "0" for num in self.total):
+        if self.total == "0000":
             print 'Ping!'
 
         self.master.set_state(StoppedState(self.master))
@@ -134,9 +134,8 @@ class NumPadButton(Button):
     def press_num(self):
         microwave = self.master.master
         if isinstance(microwave.state, StoppedState):
-            if microwave.timer.total[0] == '0':
-                del microwave.timer.total[0]
-                microwave.timer.total.append(self["text"])
+            if microwave.timer.total.startswith("0"):
+                microwave.timer.total = microwave.timer.total[1:] + self["text"]
                 microwave.timer.refresh()
 
 
