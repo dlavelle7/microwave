@@ -86,21 +86,27 @@ class TestMicrowave(unittest.TestCase):
         self.assertTrue(isinstance(timer.master.set_state.call_args[0][0],
             microwave.StoppedState))
 
-        # Countdown stopped at 3secs -> timer keeps this value
+        # Countdown stopped after 1 sec -> timer keeps this value
         mock_sleep.reset_mock()
         timer.master.set_state.reset_mock()
         def stop_countdown(secs):
             """Mimic user stopping microwave during countdown."""
-            if mock_sleep.call_count == 3:
+            if mock_sleep.called:
                 timer.master.state = microwave.StoppedState(Mock())
         mock_sleep.side_effect = stop_countdown
         timer.total = "1234"
         timer.countdown()
-        self.assertEqual(timer.total, "1231")
-        self.assertEqual(timer.timer_label["text"], "12:31")
+        self.assertEqual(timer.total, "1233")
+        self.assertEqual(timer.timer_label["text"], "12:33")
         self.assertFalse(timer.master.set_state.called)
 
-        # TODO: Formats user entered secs e.g: "0090" -> "01:30"
+        # Corrects user entered secs e.g: "00:90" -> "01:30"
+        mock_sleep.reset_mock()
+        timer.master.state = Mock()
+        timer.total = "0091"
+        timer.countdown()  # stops after one sleep
+        self.assertEqual(timer.total, "0130")
+        self.assertEqual(timer.timer_label["text"], "01:30")
 
     @patch('microwave.Frame', MockWidget)
     @patch('microwave.Label', MockWidget)
