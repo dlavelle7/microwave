@@ -79,7 +79,7 @@ class Microwave(FrameComponent):
 class Timer(FrameComponent):
 
     def __init__(self, master):
-        self.total = '0000'
+        self.total = "0000"
         FrameComponent.__init__(self, master)
 
     def create(self):
@@ -91,6 +91,7 @@ class Timer(FrameComponent):
         self.timer_label["text"] = self.total[:2] + ":" + self.total[2:]
 
     def countdown(self):
+        self.validate_timer()
         mins = int(self.total[:2])
         secs = int(self.total[2:])
         total_secs = mins * 60 + secs
@@ -99,12 +100,17 @@ class Timer(FrameComponent):
                 return
             total_secs -= 1
             new_mins, new_secs = divmod(total_secs, 60)
-            self.total = '{:02d}{:02d}'.format(new_mins, new_secs)
+            self.total = "{:02d}{:02d}".format(new_mins, new_secs)
             self.refresh()
             time.sleep(1)
 
         print 'Ping!'
         self.master.set_state(StoppedState(self.master))
+
+    def validate_timer(self):
+        """Correct a max value of '99:99' to '99:59'"""
+        if int(self.total) > 9959:
+            self.total = "9959"
 
 
 class NumberPad(FrameComponent):
