@@ -1,6 +1,6 @@
 import unittest
 import microwave
-from mock import Mock, patch
+from mock import Mock, patch, call
 
 class MockWidget:
     """Old style class to mock base class Tkinter widgets."""
@@ -75,6 +75,16 @@ class TestMicrowave(unittest.TestCase):
         # When created total is "0000" and label is "00:00"
         self.assertEqual("0000", timer.total)
         self.assertEqual("00:00", timer.timer_label["text"])
+        # Timer set to 5secs -> sleep called 5 times, pings and sets stopped
+        timer.total = "0005"
+        timer.countdown()
+        self.assertEqual(5, mock_sleep.call_count)
+        self.assertEqual(timer.total, "0000")
+        self.assertEqual(timer.timer_label["text"], "00:00")
+        self.assertEqual(1, timer.master.set_state.call_count)
+        self.assertTrue(isinstance(timer.master.set_state.call_args[0][0],
+            microwave.StoppedState))
+        # TODO: Countdown stopped
 
     @patch('microwave.Frame', MockWidget)
     @patch('microwave.Label', MockWidget)
