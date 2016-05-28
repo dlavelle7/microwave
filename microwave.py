@@ -33,7 +33,7 @@ class StoppedState(State):
             print "Cooking . . ."
             self.microwave.set_state(CookingState(self.microwave))
             thread = threading.Thread(target=self.microwave.timer.countdown)
-            thread.start()  # FIXME: call this threas join() from main thread?
+            thread.start()  # FIXME: call this threads join() from main thread?
 
     def stop(self):
         """Clear timer if stopped and stop is pressed."""
@@ -140,7 +140,6 @@ class NumPadButton(Button):
         microwave = self.master.master
         if isinstance(microwave.state, StoppedState):
             if microwave.timer.total.startswith("0"):
-                # FIXME: '09:99' add num?
                 microwave.timer.total = microwave.timer.total[1:] + self["text"]
                 microwave.timer.refresh()
 
