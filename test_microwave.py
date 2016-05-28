@@ -7,9 +7,13 @@ class MockWidget:
 
     def __init__(self, *args, **kwargs):
         self.master = args[0]
+        self.config = dict()
 
     def __setitem__(self, name, value):
-        pass
+        self.config[name] = value
+
+    def __getitem__(self, name):
+        return self.config[name]
 
     def grid(self, *args, **kwargs):
         pass
@@ -62,6 +66,27 @@ class TestMicrowave(unittest.TestCase):
         micro.state.stop()
         self.assertTrue(isinstance(micro.state, microwave.StoppedState))
 
-    def test_countdown(self):
-        # TODO
-        pass
+    @patch('microwave.Frame', MockWidget)
+    @patch('microwave.Label', MockWidget)
+    @patch('microwave.time.sleep')
+    def test_countdown(self, mock_sleep):
+        microwave.FrameComponent.__bases__ = (MockWidget,)
+        timer = microwave.Timer(Mock())
+        # When created total is "0000" and label is "00:00"
+        self.assertEqual("0000", timer.total)
+        self.assertEqual("00:00", timer.timer_label["text"])
+
+    @patch('microwave.Frame', MockWidget)
+    @patch('microwave.Label', MockWidget)
+    @patch('microwave.time.sleep')
+    def test_validate_timer(self, mock_sleep):
+        microwave.FrameComponent.__bases__ = (MockWidget,)
+        timer = microwave.Timer(Mock())
+        # When total is set to above '9959' corrects to '9959'
+        timer.total = "9960"
+        timer.validate_timer()
+        self.assertEqual("9959", timer.total)
+        # When total is below '9959' total is unchanged
+        timer.total = "9958"
+        timer.validate_timer()
+        self.assertEqual("9958", timer.total)
