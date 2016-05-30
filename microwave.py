@@ -83,7 +83,7 @@ class Timer(FrameComponent):
         FrameComponent.__init__(self, master)
 
     def create(self):
-        self.timer_label = Label(self, width=8, borderwidth=10, font=('arial', 15, 'bold'), bg='black', fg="green")
+        self.timer_label = Label(self, width=8, borderwidth=10, font=('Helvetica', 15, 'bold'), bg='black', fg="green")
         self.refresh()
         self.timer_label.pack()
 
@@ -126,7 +126,7 @@ class NumberPad(FrameComponent):
                     text = "0"
                 else:
                     text=str(num)
-                NumPadButton(self, text=text, font=('arial', 10, 'normal'), fg="white", bg="black",
+                NumPadButton(self, text=text, font=('Helvetica', 10, 'bold'), fg="white", bg="black",
                     borderwidth=2, activebackground="green").grid(row=r,column=c)
 
 
@@ -148,11 +148,11 @@ class Controls(FrameComponent):
 
     def create(self):
         start = Button(self, text="Start", borderwidth=2,
-                command=self.start_oven, font=('arial', 10, 'normal'), fg="white", bg="black",
+                command=self.start_oven, font=('Helvetica', 10, 'bold'), fg="white", bg="black",
                     activebackground="green")
         start.pack(side=LEFT)
         stop = Button(self, text="Stop / Clear", borderwidth=2,
-                command=self.stop_oven, font=('arial', 10, 'normal'), fg="white", bg="black",
+                command=self.stop_oven, font=('Helvetica', 10, 'bold'), fg="white", bg="black",
                     activebackground="green")
         stop.pack(side=LEFT)
 
