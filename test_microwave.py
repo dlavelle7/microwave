@@ -24,6 +24,12 @@ class MockWidget:
     def next(self):
         return Mock()
 
+    def create_rectangle(self, *args, **kwargs):
+        pass
+
+    def itemconfig(self, *args, **kwargs):
+        pass
+
 
 class TestMicrowave(unittest.TestCase):
 
@@ -34,6 +40,7 @@ class TestMicrowave(unittest.TestCase):
     def tearDown(self):
         pass
 
+    @patch('microwave.Canvas', MockWidget)
     @patch('microwave.Frame', MockWidget)
     @patch('microwave.Label', MockWidget)
     @patch('microwave.Button', MockWidget)
@@ -41,6 +48,7 @@ class TestMicrowave(unittest.TestCase):
         # Mock Tkinter.Frame & Tkinter.Button base classes
         microwave.FrameComponent.__bases__ = (MockWidget,)
         microwave.NumPadButton.__bases__ = (MockWidget,)
+        microwave.Door.__bases__ = (MockWidget,)
         # Create microwave instance
         micro = microwave.Microwave(Mock())
         self.assertTrue(isinstance(micro.state, microwave.StoppedState))
@@ -82,13 +90,11 @@ class TestMicrowave(unittest.TestCase):
         self.assertEqual(5, mock_sleep.call_count)
         self.assertEqual(timer.total, "0000")
         self.assertEqual(timer.timer_label["text"], "00:00")
-        self.assertEqual(1, timer.master.set_state.call_count)
-        self.assertTrue(isinstance(timer.master.set_state.call_args[0][0],
-            microwave.StoppedState))
+        self.assertEqual(1, timer.master.controls.stop_oven.call_count)
 
         # Countdown stopped after 1 sec -> timer keeps this value
         mock_sleep.reset_mock()
-        timer.master.set_state.reset_mock()
+        timer.master.controls.stop_oven.reset_mock()
         def stop_countdown(secs):
             """Mimic user stopping microwave during countdown."""
             if mock_sleep.called:
@@ -98,7 +104,7 @@ class TestMicrowave(unittest.TestCase):
         timer.countdown()
         self.assertEqual(timer.total, "1233")
         self.assertEqual(timer.timer_label["text"], "12:33")
-        self.assertFalse(timer.master.set_state.called)
+        self.assertFalse(timer.master.controls.stop_oven.called)
 
         # Corrects user entered secs e.g: "00:90" -> "01:30"
         mock_sleep.reset_mock()
