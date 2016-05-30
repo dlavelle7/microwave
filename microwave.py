@@ -171,7 +171,8 @@ class Door(Canvas):
         self.pack(side=LEFT)
 
     def create(self):
-        pass
+        # (x0, y0), (x1, y1) => top left & top right coords
+        self.window = self.create_rectangle((50, 50), (350, 175), fill="grey")
 
 
 def main():
