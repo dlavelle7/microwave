@@ -8,7 +8,7 @@ import sys
 import time
 import traceback
 import threading
-from Tkinter import Tk, Frame, Button, Label, LEFT
+from Tkinter import Tk, Frame, Button, Label, LEFT, Canvas
 
 # TODO: Open door state?
 
@@ -33,8 +33,7 @@ class StoppedState(State):
             print "Cooking . . ."
             self.microwave.set_state(CookingState(self.microwave))
             thread = threading.Thread(target=self.microwave.timer.countdown)
-            thread.start()  # FIXME: call this threads join() from main thread?
-
+            thread.start()  # FIXME: call this threads join() from main thread?  
     def stop(self):
         """Clear timer if stopped and stop is pressed."""
         self.microwave.timer.total = "0000"
@@ -68,6 +67,7 @@ class Microwave(FrameComponent):
         self.state = StoppedState(self)
 
     def create(self):
+        self.door = Door(self)
         self.timer = Timer(self)
         self.number_pad = NumberPad(self)
         self.controls = Controls(self)
@@ -161,6 +161,17 @@ class Controls(FrameComponent):
 
     def stop_oven(self):
         self.master.state.stop()
+
+
+class Door(Canvas):
+
+    def __init__(self, master):
+        Canvas.__init__(self, master, height=222, width=400, bg="black")
+        self.create()
+        self.pack(side=LEFT)
+
+    def create(self):
+        pass
 
 
 def main():
