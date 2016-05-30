@@ -31,6 +31,7 @@ class StoppedState(State):
         # TODO: Isn't this another state (StoppedWithTime)
         if self.microwave.timer.total != "0000":
             print "Cooking . . ."
+            self.microwave.door.itemconfig(self.microwave.door.window_id, fill="yellow")
             self.microwave.set_state(CookingState(self.microwave))
             thread = threading.Thread(target=self.microwave.timer.countdown)
             thread.start()  # FIXME: call this threads join() from main thread?  
@@ -45,6 +46,7 @@ class CookingState(State):
     def stop(self):
         self.microwave.set_state(StoppedState(self.microwave))
         print "Stopped"
+        self.microwave.door.itemconfig(self.microwave.door.window_id, fill="grey")
 
 # TODO: Door Graphic (black -> stopped, yellow -> cooking
 
@@ -105,7 +107,7 @@ class Timer(FrameComponent):
             time.sleep(1)
 
         print 'Ping!'
-        self.master.set_state(StoppedState(self.master))
+        self.master.controls.stop_oven()
 
     def validate_timer(self):
         """Correct a max value of '99:99' to '99:59'"""
@@ -172,7 +174,7 @@ class Door(Canvas):
 
     def create(self):
         # (x0, y0), (x1, y1) => top left & top right coords
-        self.window = self.create_rectangle((50, 50), (350, 175), fill="grey")
+        self.window_id = self.create_rectangle((50, 50), (350, 175), fill="grey")
 
 
 def main():
