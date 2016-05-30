@@ -10,8 +10,8 @@ import traceback
 import threading
 from Tkinter import Tk, Frame, Button, Label, LEFT, Canvas, FALSE
 
-# TODO: Open door state?
 
+# TODO: Open door state?
 class State(object):
     """Base class for State pattern."""
 
@@ -31,10 +31,12 @@ class StoppedState(State):
         # TODO: Isn't this another state (StoppedWithTime)
         if self.microwave.timer.total != "0000":
             print "Cooking . . ."
-            self.microwave.door.itemconfig(self.microwave.door.window_id, fill="yellow")
+            self.microwave.door.itemconfig(self.microwave.door.window,
+                    fill="yellow")
             self.microwave.set_state(CookingState(self.microwave))
             thread = threading.Thread(target=self.microwave.timer.countdown)
-            thread.start()  # FIXME: call this threads join() from main thread?  
+            thread.start()  # FIXME: call this threads join() from main thread?
+
     def stop(self):
         """Clear timer if stopped and stop is pressed."""
         self.microwave.timer.total = "0000"
@@ -46,9 +48,8 @@ class CookingState(State):
     def stop(self):
         self.microwave.set_state(StoppedState(self.microwave))
         print "Stopped"
-        self.microwave.door.itemconfig(self.microwave.door.window_id, fill="grey")
+        self.microwave.door.itemconfig(self.microwave.door.window, fill="grey")
 
-# TODO: Door Graphic (black -> stopped, yellow -> cooking
 
 class FrameComponent(Frame):
     """Base class for Composite pattern."""
@@ -85,7 +86,8 @@ class Timer(FrameComponent):
         FrameComponent.__init__(self, master)
 
     def create(self):
-        self.timer_label = Label(self, width=8, borderwidth=10, font=('Helvetica', 15, 'bold'), bg='black', fg="green")
+        self.timer_label = Label(self, width=8, borderwidth=10,
+                font=('Helvetica', 15, 'bold'), bg='black', fg="green")
         self.refresh()
         self.timer_label.pack()
 
@@ -119,17 +121,19 @@ class NumberPad(FrameComponent):
 
     def create(self):
         num = 0
-        for r in range(4):
-            for c in range(3):
+        for row in range(4):
+            for column in range(3):
                 num += 1
                 if num in (10, 12):
                     continue  # numberpad doesnt have 10 / 12
                 elif num == 11:
                     text = "0"
                 else:
-                    text=str(num)
-                NumPadButton(self, text=text, font=('Helvetica', 10, 'bold'), fg="white", bg="black",
-                    borderwidth=2, activebackground="green").grid(row=r,column=c)
+                    text = str(num)
+                button = NumPadButton(self, text=text,
+                        font=('Helvetica', 10, 'bold'), fg="white", bg="black",
+                        borderwidth=2, activebackground="green")
+                button.grid(row=row, column=column)
 
 
 class NumPadButton(Button):
@@ -139,23 +143,23 @@ class NumPadButton(Button):
         self["command"] = self.press_num
 
     def press_num(self):
-        microwave = self.master.master
-        if isinstance(microwave.state, StoppedState):
-            if microwave.timer.total.startswith("0"):
-                microwave.timer.total = microwave.timer.total[1:] + self["text"]
-                microwave.timer.refresh()
+        micro = self.master.master
+        if isinstance(micro.state, StoppedState):
+            if micro.timer.total.startswith("0"):
+                micro.timer.total = micro.timer.total[1:] + self["text"]
+                micro.timer.refresh()
 
 
 class Controls(FrameComponent):
 
     def create(self):
         start = Button(self, text="Start", borderwidth=2,
-                command=self.start_oven, font=('Helvetica', 10, 'bold'), fg="white", bg="black",
-                    activebackground="green")
+                command=self.start_oven, font=('Helvetica', 10, 'bold'),
+                fg="white", bg="black", activebackground="green")
         start.pack(side=LEFT)
         stop = Button(self, text="Stop / Clear", borderwidth=2,
-                command=self.stop_oven, font=('Helvetica', 10, 'bold'), fg="white", bg="black",
-                    activebackground="green")
+                command=self.stop_oven, font=('Helvetica', 10, 'bold'),
+                fg="white", bg="black", activebackground="green")
         stop.pack(side=LEFT)
 
     def start_oven(self):
@@ -173,8 +177,8 @@ class Door(Canvas):
         self.pack(side=LEFT)
 
     def create(self):
-        # (x0, y0), (x1, y1) => top left & top right coords
-        self.window_id = self.create_rectangle((50, 50), (350, 175), fill="grey")
+        # (x0, y0), (x1, y1) => top left & top right coords (returns shape id)
+        self.window = self.create_rectangle((50, 50), (350, 175), fill="grey")
 
 
 def main():
@@ -188,10 +192,10 @@ def main():
 if __name__ == "__main__":
     try:
         main()
-    except KeyboardInterrupt as e:
+    except KeyboardInterrupt:
         print 'Keyboard Interrupt, exiting . . .'
         sys.exit(1)
-    except Exception as e:
+    except Exception:
         traceback.print_exc()
         print 'Something went wrong, exiting . . .'
         sys.exit(1)
