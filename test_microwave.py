@@ -65,11 +65,11 @@ class TestMicrowave(unittest.TestCase):
         micro.timer.total = '1234'
         micro.state.start()
         self.assertTrue(isinstance(micro.state, microwave.CookingState))
-        # TODO: Cooking -> start() = Cooking
+        # Cooking -> start() = Cooking
         micro.set_state(microwave.CookingState(micro))
         micro.state.start()
         self.assertTrue(isinstance(micro.state, microwave.CookingState))
-        # TODO: Cooking -> stop() = Stoped
+        # Cooking -> stop() = Stoped
         micro.set_state(microwave.CookingState(micro))
         micro.state.stop()
         self.assertTrue(isinstance(micro.state, microwave.StoppedState))
