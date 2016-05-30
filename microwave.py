@@ -8,7 +8,7 @@ import sys
 import time
 import traceback
 import threading
-from Tkinter import Tk, Frame, Button, Label, LEFT, Canvas
+from Tkinter import Tk, Frame, Button, Label, LEFT, Canvas, FALSE
 
 # TODO: Open door state?
 
@@ -179,6 +179,7 @@ class Door(Canvas):
 
 def main():
     top = Tk()
+    top.resizable(width=FALSE, height=FALSE)
     top.title('Microwave')
     Microwave(top)
     top.mainloop()
