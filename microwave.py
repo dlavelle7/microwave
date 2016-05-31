@@ -1,12 +1,10 @@
 #!/usr/bin/env python
 """Simple example of a microwave ovens control panel.
 
-Implemented using the Tkinter library for the GUI and combining the State and
-Composite design patterns.
+Implemented using the Tkinter library for the GUI and the State design pattern.
 """
 import sys
 import time
-import traceback
 import threading
 from Tkinter import Tk, Frame, Button, Label, LEFT, Canvas, FALSE
 
@@ -34,8 +32,9 @@ class StoppedState(State):
             self.microwave.door.itemconfig(self.microwave.door.window,
                     fill="yellow")
             self.microwave.set_state(CookingState(self.microwave))
-            thread = threading.Thread(target=self.microwave.timer.countdown)
-            thread.start()  # FIXME: call this threads join() from main thread?
+            self.microwave.timer_thread = threading.Thread(
+                    target=self.microwave.timer.countdown)
+            self.microwave.timer_thread.start()
 
     def stop(self):
         """Clear timer if stopped and stop is pressed."""
@@ -52,7 +51,6 @@ class CookingState(State):
 
 
 class FrameComponent(Frame):
-    """Base class for Composite pattern."""
 
     def __init__(self, *args, **kwargs):
         Frame.__init__(self, *args, **kwargs)
@@ -68,6 +66,7 @@ class Microwave(FrameComponent):
     def __init__(self, master):
         FrameComponent.__init__(self, master)
         self.state = StoppedState(self)
+        self.timer_thread = None
 
     def create(self):
         self.door = Door(self)
@@ -77,6 +76,13 @@ class Microwave(FrameComponent):
 
     def set_state(self, state):
         self.state = state
+
+    def shutdown(self):
+        """Stop microwave, and wait for last active thread to terminate"""
+        self.controls.stop_oven()
+        if self.timer_thread and self.timer_thread.is_alive():
+            self.timer_thread.join()
+        self.master.destroy()
 
 
 class Timer(FrameComponent):
@@ -181,21 +187,17 @@ class Door(Canvas):
         self.window = self.create_rectangle((50, 50), (350, 175), fill="grey")
 
 
-def main():
-    top = Tk()
-    top.resizable(width=FALSE, height=FALSE)
-    top.title('Microwave')
-    Microwave(top)
-    top.mainloop()
-
-
 if __name__ == "__main__":
+    top = Tk()
+    top.title('Microwave')
+    top.resizable(width=FALSE, height=FALSE)
+    microwave = None
+
     try:
-        main()
-    except KeyboardInterrupt:
-        print 'Keyboard Interrupt, exiting . . .'
-        sys.exit(1)
-    except Exception:
-        traceback.print_exc()
-        print 'Something went wrong, exiting . . .'
+        microwave = Microwave(top)
+        top.protocol("WM_DELETE_WINDOW", microwave.shutdown)
+        top.mainloop()
+    except BaseException as exception:
+        if microwave:
+            microwave.shutdown()
         sys.exit(1)

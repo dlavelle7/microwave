@@ -35,7 +35,6 @@ class TestMicrowave(unittest.TestCase):
 
     def setUp(self):
         microwave.threading = Mock()
-        microwave.time = Mock()
 
     def tearDown(self):
         pass
@@ -44,6 +43,7 @@ class TestMicrowave(unittest.TestCase):
     @patch('microwave.Frame', MockWidget)
     @patch('microwave.Label', MockWidget)
     @patch('microwave.Button', MockWidget)
+    @patch('microwave.time.sleep', Mock())
     def test_states(self):
         # Mock Tkinter.Frame & Tkinter.Button base classes
         microwave.FrameComponent.__bases__ = (MockWidget,)
