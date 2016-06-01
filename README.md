@@ -14,6 +14,6 @@ Instructions
 
 Screen Shots
 ------------
-![Alt text](stopped.jpg?raw=true "Stopped")
+![Alt text](screenshots/stopped.jpg?raw=true "Stopped")
 
-![Alt text](cooking.jpg?raw=true "Cooking")
+![Alt text](screenshots/cooking.jpg?raw=true "Cooking")
