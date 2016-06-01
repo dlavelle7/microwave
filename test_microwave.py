@@ -66,11 +66,11 @@ class TestMicrowave(unittest.TestCase):
         micro.state.start()
         self.assertTrue(isinstance(micro.state, microwave.CookingState))
         # Cooking -> start() = Cooking
-        micro.set_state(microwave.CookingState(micro))
+        micro.set_state(microwave.CookingState)
         micro.state.start()
         self.assertTrue(isinstance(micro.state, microwave.CookingState))
         # Cooking -> stop() = Stoped
-        micro.set_state(microwave.CookingState(micro))
+        micro.set_state(microwave.CookingState)
         micro.state.stop()
         self.assertTrue(isinstance(micro.state, microwave.StoppedState))
 

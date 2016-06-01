@@ -31,7 +31,7 @@ class StoppedState(State):
             print "Cooking . . ."
             self.microwave.door.itemconfig(self.microwave.door.window,
                     fill="yellow")
-            self.microwave.set_state(CookingState(self.microwave))
+            self.microwave.set_state(CookingState)
             self.microwave.timer_thread = threading.Thread(
                     target=self.microwave.timer.countdown)
             self.microwave.timer_thread.start()
@@ -45,7 +45,7 @@ class StoppedState(State):
 class CookingState(State):
 
     def stop(self):
-        self.microwave.set_state(StoppedState(self.microwave))
+        self.microwave.set_state(StoppedState)
         print "Stopped"
         self.microwave.door.itemconfig(self.microwave.door.window, fill="grey")
 
@@ -74,8 +74,8 @@ class Microwave(FrameComponent):
         self.number_pad = NumberPad(self)
         self.controls = Controls(self)
 
-    def set_state(self, state):
-        self.state = state
+    def set_state(self, state_class):
+        self.state = state_class(self)
 
     def shutdown(self):
         """Stop microwave, and wait for last active thread to terminate"""
