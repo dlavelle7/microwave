@@ -7,6 +7,7 @@ pattern.
 import sys
 import time
 import threading
+import traceback
 from Tkinter import Tk, Frame, Button, Label, LEFT, Canvas, FALSE
 
 
@@ -200,4 +201,5 @@ if __name__ == "__main__":
     except BaseException as exception:
         if microwave:
             microwave.shutdown()
+        traceback.print_exc()
         sys.exit(1)
