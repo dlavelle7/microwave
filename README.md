@@ -1,11 +1,19 @@
 Microwave
 =========
-Work in progress . . .
-Simple example of a microwave ovens control panel.
+Example of a microwave oven with working countdown timer,
+control panel and light!
 
-Implemented using the Tkinter library for the GUI and combining the State and
-Composite design patterns
+Implemented using pythons Tkinter library for the GUI and the State
+design pattern.
 
 Instructions
 ------------
-python microwave.py
+* clone repository
+* install tkinter (yum install tkinter)
+* python microwave.py
+
+Screen Shots
+------------
+![Alt text](stopped.jpg?raw=true "Stopped")
+
+![Alt text](cooking.jpg?raw=true "Cooking")

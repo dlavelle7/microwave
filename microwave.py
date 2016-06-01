@@ -1,7 +1,8 @@
 #!/usr/bin/env python
-"""Simple example of a microwave ovens control panel.
+"""Microwave oven example.
 
-Implemented using the Tkinter library for the GUI and the State design pattern.
+Implemented using pythons Tkinter library for the GUI and the State design
+pattern.
 """
 import sys
 import time
