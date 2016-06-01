@@ -8,6 +8,8 @@ class MockWidget:
     def __init__(self, *args, **kwargs):
         self.master = args[0]
         self.config = dict()
+        for name, value in kwargs.iteritems():
+            self.__setitem__(name, value)
 
     def __setitem__(self, name, value):
         self.config[name] = value
@@ -35,9 +37,6 @@ class TestMicrowave(unittest.TestCase):
 
     def setUp(self):
         microwave.threading = Mock()
-
-    def tearDown(self):
-        pass
 
     @patch('microwave.Canvas', MockWidget)
     @patch('microwave.Frame', MockWidget)
@@ -128,3 +127,35 @@ class TestMicrowave(unittest.TestCase):
         timer.total = "9958"
         timer.validate_timer()
         self.assertEqual("9958", timer.total)
+
+    @patch('microwave.Button', MockWidget)
+    def test_num_pad_button(self):
+        microwave.NumPadButton.__bases__ = (MockWidget,)
+        timer = Mock(total="0000")
+        micro = Mock(timer=timer)
+        number_pad = Mock(master=micro)
+        # Cooking state & press_num() => No time change
+        micro.state = microwave.CookingState(micro)
+        button9 = microwave.NumPadButton(number_pad, text="9")
+        button9["command"]()
+        self.assertEqual("0000", button9.master.master.timer.total)
+        # Stopped state, timer == '0000' & press_num() '9' => timer == '0009'
+        micro.state = microwave.StoppedState(micro)
+        button9["command"]()
+        self.assertEqual("0009", button9.master.master.timer.total)
+        # Stopped state, timer == '0009' & press_num() '8' => timer == '0098'
+        button8 = microwave.NumPadButton(number_pad, text="8")
+        button8["command"]()
+        self.assertEqual("0098", button8.master.master.timer.total)
+        # Stopped state, timer == '0098' & press_num() '7' => timer == '0987'
+        button7 = microwave.NumPadButton(number_pad, text="7")
+        button7["command"]()
+        self.assertEqual("0987", button7.master.master.timer.total)
+        # Stopped state, timer == '0987' & press_num() '6' => timer == '9876'
+        button6 = microwave.NumPadButton(number_pad, text="6")
+        button6["command"]()
+        self.assertEqual("9876", button6.master.master.timer.total)
+        # Stopped state, timer == '9876' & press_num() '5' => No time change
+        button5 = microwave.NumPadButton(number_pad, text="5")
+        button5["command"]()
+        self.assertEqual("9876", button5.master.master.timer.total)

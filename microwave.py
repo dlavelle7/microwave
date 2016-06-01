@@ -9,7 +9,6 @@ import threading
 from Tkinter import Tk, Frame, Button, Label, LEFT, Canvas, FALSE
 
 
-# TODO: Open door state?
 class State(object):
     """Base class for State pattern."""
 
@@ -26,12 +25,12 @@ class State(object):
 class StoppedState(State):
 
     def start(self):
-        # TODO: Isn't this another state (StoppedWithTime)
         if self.microwave.timer.total != "0000":
             print "Cooking . . ."
             self.microwave.door.itemconfig(self.microwave.door.window,
                     fill="yellow")
             self.microwave.set_state(CookingState)
+            # No Lock required as 'timer.total' changes happen asynchronously
             self.microwave.timer_thread = threading.Thread(
                     target=self.microwave.timer.countdown)
             self.microwave.timer_thread.start()
@@ -149,11 +148,11 @@ class NumPadButton(Button):
         self["command"] = self.press_num
 
     def press_num(self):
-        micro = self.master.master
-        if isinstance(micro.state, StoppedState):
-            if micro.timer.total.startswith("0"):
-                micro.timer.total = micro.timer.total[1:] + self["text"]
-                micro.timer.refresh()
+        microwave = self.master.master
+        if isinstance(microwave.state, StoppedState) and \
+                    microwave.timer.total.startswith("0"):
+            microwave.timer.total = microwave.timer.total[1:] + self["text"]
+            microwave.timer.refresh()
 
 
 class Controls(FrameComponent):
