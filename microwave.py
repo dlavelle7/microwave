@@ -10,6 +10,9 @@ import threading
 import traceback
 from Tkinter import Tk, Frame, Button, Label, LEFT, Canvas, FALSE
 
+BUTTON_STYLE = {"borderwidth": 2, "font": ('Helvetica', 10, 'bold'),
+                "fg": "white", "bg": "black", "activebackground": "green"}
+
 
 class State(object):
     """Base class for State pattern."""
@@ -29,12 +32,12 @@ class StoppedState(State):
     def start(self):
         if self.microwave.timer.total != "0000":
             print "Cooking . . ."
-            self.microwave.door.itemconfig(self.microwave.door.window,
-                    fill="yellow")
+            self.microwave.door.itemconfig(
+                self.microwave.door.window, fill="yellow")
             self.microwave.set_state(CookingState)
             # No Lock required as 'timer.total' changes happen asynchronously
             self.microwave.timer_thread = threading.Thread(
-                    target=self.microwave.timer.countdown)
+                target=self.microwave.timer.countdown)
             self.microwave.timer_thread.start()
 
     def stop(self):
@@ -93,8 +96,9 @@ class Timer(FrameComponent):
         FrameComponent.__init__(self, master)
 
     def create(self):
-        self.timer_label = Label(self, width=8, borderwidth=10,
-                font=('Helvetica', 15, 'bold'), bg='black', fg="green")
+        self.timer_label = Label(
+            self, width=8, borderwidth=10, font=('Helvetica', 15, 'bold'),
+            bg='black', fg="green")
         self.refresh()
         self.timer_label.pack()
 
@@ -137,9 +141,7 @@ class NumberPad(FrameComponent):
                     text = "0"
                 else:
                     text = str(num)
-                button = NumPadButton(self, text=text,
-                        font=('Helvetica', 10, 'bold'), fg="white", bg="black",
-                        borderwidth=2, activebackground="green")
+                button = NumPadButton(self, text=text, **BUTTON_STYLE)
                 button.grid(row=row, column=column)
 
 
@@ -152,7 +154,7 @@ class NumPadButton(Button):
     def press_num(self):
         microwave = self.master.master
         if isinstance(microwave.state, StoppedState) and \
-                    microwave.timer.total.startswith("0"):
+                microwave.timer.total.startswith("0"):
             microwave.timer.total = microwave.timer.total[1:] + self["text"]
             microwave.timer.refresh()
 
@@ -160,13 +162,11 @@ class NumPadButton(Button):
 class Controls(FrameComponent):
 
     def create(self):
-        start = Button(self, text="Start", borderwidth=2,
-                command=self.start_oven, font=('Helvetica', 10, 'bold'),
-                fg="white", bg="black", activebackground="green")
+        start = Button(
+            self, text="Start", command=self.start_oven, **BUTTON_STYLE)
         start.pack(side=LEFT)
-        stop = Button(self, text="Stop / Clear", borderwidth=2,
-                command=self.stop_oven, font=('Helvetica', 10, 'bold'),
-                fg="white", bg="black", activebackground="green")
+        stop = Button(
+            self, text="Stop / Clear", command=self.stop_oven, **BUTTON_STYLE)
         stop.pack(side=LEFT)
 
     def start_oven(self):
