@@ -16,8 +16,8 @@ Screen Shots
 ------------
 Microwave stopped:
 
-![Alt text](./screenshots/stopped.png?raw=true "Stopped")
+![Alt text](./../screenshots/screenshots/stopped.png?raw=true "Stopped")
 
 Microwave cooking:
 
-![Alt text](./screenshots/cooking.png?raw=true "Cooking")
+![Alt text](./../screenshots/screenshots/cooking.png?raw=true "Cooking")
